@@ -55,7 +55,7 @@ if [[ ! -v "_c_compilers" ]]; then
       "llvm"
     )
   fi
-  _c_compilers=(
+  _c_compilers+=(
     "${_c_compiler}"
   )
 fi
@@ -66,7 +66,7 @@ _pyminver=13
 _pkgver="${_pymajver}.${_pyminver}"
 pkgname="${_pkg}${_pkgver}"
 pkgver="${_pkgver}.0"
-pkgrel=7
+pkgrel=8
 _pyver="${pkgver}"
 _pybasever="${_pkgver}"
 _pkgdesc=(
