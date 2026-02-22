@@ -580,6 +580,10 @@ _build() {
       "--"
       "${_makepkg_opts[@]}"
   )
+  ln \
+    -s \
+    "/usr/bin/clang" \
+    "/usr/bin/clang-18"
   su \
     -c \
     "${_cmd[*]}" - \
