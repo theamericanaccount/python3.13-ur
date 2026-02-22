@@ -33,17 +33,31 @@
 _os="$(
   uname \
     -o)"
-if [[ "${_os}" == "GNU/Linux" ]]; then
+if [[ ! -v "_jit" ]]; then
+  _jit="true"
+fi
+if [[ ! -v "_c_compilers" ]]; then
+  _c_compiler=()
+  if [[ "${_os}" == "GNU/Linux" ]]; then
+    _c_compiler="gcc"
+    _libc="gcc-libs"
+    if [[ "${_jit}" == "true" ]]; then
+      _c_compiler="clang"
+      _libc="llvm-libs"
+      _c_compilers+=(
+        "llvm"
+      )
+    fi
+  elif [[ "${_os}" == "Android" ]]; then
+    _c_compiler="clang"
+    _libc="llvm-libs"
+    _c_compilers+=(
+      "llvm"
+    )
+  fi
   _c_compilers=(
-    "gcc"
+    "${_c_compiler}"
   )
-  _libc="gcc-libs"
-elif [[ "${_os}" == "Android" ]]; then
-  _c_compilers=(
-    "clang"
-    "llvm"
-  )
-  _libc="llvm-libs"
 fi
 _Pkg=Python
 _pkg=python
@@ -84,6 +98,7 @@ depends=(
 makedepends=(
   'bluez-libs'
   "${_c_compilers[@]}"
+  "${_libc}"
   'gdb'
   'mpdecimal'
 )
@@ -127,7 +142,21 @@ prepare() {
 build() {
   local \
     _cflags=() \
-    _configure_opts=()
+    _enable_experimental_jit \
+    _configure_opts=() \
+    _msg=()
+  if [[ "${_jit}" == "true" ]]; then
+    _enable_experimental_jit="yes"
+  elif [[ "${_jit}" == "false" ]]; then
+    _enable_experimental_jit="yes"
+  else
+    _msg=(
+      "Unknown value '${_jit}'"
+      "for variable '_jit'."
+    )
+    echo \
+      "${_msg[*]}"
+  fi
   _cflags+=(
     ${CFLAGS}
     -fno-semantic-interposition
@@ -149,7 +178,7 @@ build() {
     --with-ensurepip
     --enable-optimizations
     --disable-gil
-    --enable-experimental-jit="yes"
+    --enable-experimental-jit="${_enable_experimental_jit}"
     --with-tzpath="/usr/share/zoneinfo"
   )
   cd \
