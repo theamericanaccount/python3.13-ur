@@ -189,9 +189,11 @@ _check_tag_latest() {
       -C \
         "${_repo_dir}" \
       tag |
-      tail \
-        -n \
-          1)"
+      sort \
+        -V |
+        tail \
+          -n \
+            1)"
   _tag_build="${tag}"
   _tag_current="${_tag_build}"
   _tag_recipe="$(
